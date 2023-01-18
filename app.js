@@ -2,8 +2,7 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 require('dotenv').config();
-
-
+const cors = require('cors');
 
 
 
@@ -21,47 +20,30 @@ connection.once('open',()=>{
 
 
 //Middleware
-app.use(express.json())
+app.use(express.json());
+app.use(cors())
+const {hashGenerate} = require('./helpers/hashing');
+
+require('./schema/userDetails');
+const User = mongoose.model("UserInfo")
+app.post('/register', async(req,res) => {
+    try {
+        const hashPassword = await hashGenerate(req.body.password)
+
+    const user = new User({
+        fname:req.body.fname,
+        lname:req.body.lname,
+        email:req.body.email,
+        password:hashPassword
+    });
+    const savedUser = await user.save();
+    res.send(savedUser);
+    } catch (error) {
+        res.send(error);
+    }
+})
 
 
-
-
-app.listen(3001,(req,res) => {
+app.listen(3001,() => {
     console.log("Server started running on port 3001");
-})
-
-app.post("/post",async(req,res) => {
-    console.log(req.body);
-    const {data} = req.body;
-
-    try {
-
-    if(data2=="12344") {
-        res.send({status:"ok"})
-    }else{
-        res.send({status:"User not found"})
-    }
-    } catch (error) {
-        res.send({status:"Something went wrong try again."})
-    }
-
-})
-
-require("./schema/userDetails");
-
-const User = mongoose.model('UserInfo');
-
-app.post('/register',async(req,res) => {
-    const {name,email,mobileno,password} = req.body
-    try {
-        await User.create({
-            username:name,
-            email:email,
-            phoneno:mobileno,
-            password:password
-        });
-        res.send({status:"ok"})
-    } catch (error) {
-        res.send({status:"error"})
-    }
 })

@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
 const userDetailsSchema = new mongoose.Schema({
-    username :String,
-    email:String,
-    phoneno:Number,
+    fname:String,
+    lname:String,
+    email:{type:String,unique:true},
     password:String
 },{
     collation: "UserInfo"
